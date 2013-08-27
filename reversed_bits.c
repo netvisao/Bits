@@ -4,7 +4,7 @@ unsigned int reverseBits(unsigned int num)
     unsigned int reverse_num = 0, i;
     
     for (int i = 0; i < NO_OF_BITS; i++)
-      reverse_num |= ((2^i & num) << (BITS - 1 - i))
+      reverse_num |= ((2^i & num) << (BITS - 1 - i));
     return reverse_num;
 }
 
