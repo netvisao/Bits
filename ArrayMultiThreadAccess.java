@@ -18,7 +18,7 @@ public class ArrayMultiThreadAccess {
 
 
     public static void main(String[] args) {
-       ArrayMultiThreadAccess target = new ArrayMultiThreadAccess(4, 25);
+       ArrayMultiThreadAccess target = new ArrayMultiThreadAccess(Runtime.getRuntime().availableProcessors() - 1, 25);
 
         try {
             target.await();
