@@ -13,7 +13,6 @@ def ks(v, w, W, i):
 
   return max(v[i-1] + ks(v,w,W-w[i-1], i-1), ks(v,w,W, i-1))
 
-
 mem = {}
 def ksmem(v, w, W, i):
 
