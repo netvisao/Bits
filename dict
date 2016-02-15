@@ -2,6 +2,7 @@
 import sys
 import json
 import urllib 
+from HTMLParser import HTMLParser
 
 def main():
   args = []
@@ -14,9 +15,11 @@ def main():
   else:
     args += sys.argv[1:]
 
+  parser = HTMLParser()
+
   for word in args:
     cnt = 0
-    url = 'http://glosbe.com/gapi/translate?from=eng&dest=eng&format=json&phrase=%s' % word
+    url = 'http://glosbe.com/gapi/translate?from=eng&dest=eng&format=json&phrase=%s' % urllib.quote(word)
     result = json.load(urllib.urlopen(url)) 
     print "\n%s:" % word
     if "tuc" in result \
@@ -24,7 +27,7 @@ def main():
       and "meanings" in result["tuc"][0]:
       for meaning in result["tuc"][0]["meanings"]:
         cnt += 1
-        print "   %d - %s" % (cnt, meaning["text"])
+        print "   %d - %s" % (cnt, parser.unescape(meaning["text"]))
 
 if __name__ == '__main__':
   main()
