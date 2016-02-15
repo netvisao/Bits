@@ -1,0 +1,30 @@
+#!/usr/bin/env python
+import sys
+import json
+import urllib 
+
+def main():
+  args = []
+  if not sys.stdin.isatty():
+    for line in sys.stdin:
+      args += [line.strip()]
+
+  if not args and len(sys.argv) < 2:
+    args = [raw_input("Enter word to search : ")]
+  else:
+    args += sys.argv[1:]
+
+  for word in args:
+    cnt = 0
+    url = 'http://glosbe.com/gapi/translate?from=eng&dest=eng&format=json&phrase=%s' % word
+    result = json.load(urllib.urlopen(url)) 
+    print "\n%s:" % word
+    if "tuc" in result:
+      for meaning in result["tuc"][0]["meanings"]:
+        cnt += 1
+        print "   %d - %s" % (cnt, meaning["text"])
+
+if __name__ == '__main__':
+  main()
+  print
+
