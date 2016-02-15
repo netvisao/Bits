@@ -16,6 +16,7 @@ def main():
     args += sys.argv[1:]
 
   parser = HTMLParser()
+  args = map(lambda x: x.lower(), args)
 
   for word in args:
     cnt = 0
