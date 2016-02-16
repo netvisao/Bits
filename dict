@@ -2,35 +2,60 @@
 import sys
 import json
 import urllib 
+import argparse
 from HTMLParser import HTMLParser
 
-def main():
-  args = []
+def main(provider, args):
+  """ Entry point """
   if not sys.stdin.isatty():
     for line in sys.stdin:
       args += [line.strip()]
 
-  if not args and len(sys.argv) < 2:
+  if not args:
     args = [raw_input("Enter word to search : ")]
-  else:
-    args += sys.argv[1:]
-
-  parser = HTMLParser()
-  args = map(lambda x: x.lower(), args)
-
+  args = map(lambda x: urllib.quote(x.lower()), args)
+  
+  res = {}
   for word in args:
-    cnt = 0
-    url = 'http://glosbe.com/gapi/translate?from=eng&dest=eng&format=json&phrase=%s' % urllib.quote(word)
+    url = get_url(provider) % urllib.quote(word)
     result = json.load(urllib.urlopen(url)) 
-    print "\n%s:" % word
-    if "tuc" in result \
-      and len(result["tuc"]) > 0 \
-      and "meanings" in result["tuc"][0]:
-      for meaning in result["tuc"][0]["meanings"]:
-        cnt += 1
-        print "   %d - %s" % (cnt, parser.unescape(meaning["text"]))
+    res[word] = extract_definitions(result, provider)
+    
+  prettyprint(res)
 
-if __name__ == '__main__':
-  main()
+def prettyprint(map):
+  """ Pretty prints results """
+  parser = HTMLParser()  
   print
+  for word in map:
+    print "%s:" % parser.unescape(word)
+    cnt = 0
+    for definition in map[word]:
+      cnt += 1
+      print "  %d - %s" % (cnt, urllib.unquote(definition).replace('\n',' ').replace('\r',''))
+    print   
+     
+def get_url(provider):
+  """ Returns the template url per provider """
+  if provider == "urban":
+    return 'http://api.urbandictionary.com/v0/define?term=%s'
+  elif provider == "globsbe":
+    return 'http://glosbe.com/gapi/translate?from=eng&dest=eng&format=json&phrase=%s'
+    
+def extract_definitions(result, provider):
+  """ Extracts the definition from a result JSON """
+  if provider == "urban":
+    return [ dfn["definition"] for dfn in result["list"] if "definition" in dfn ]
+  elif provider == "globsbe":    
+    if "tuc" in result and len(result["tuc"]) > 0 and "meanings" in result["tuc"][0]:
+      return [ dfn["text"] for dfn in result["tuc"][0]["meanings"] ]
+    else: 
+      return []
+    
+if __name__ == '__main__':
+  ap = argparse.ArgumentParser(description = 'dictionary lookup')
+  ap.add_argument('--urban', '-u', help='use urban dictionary', dest='urban', action='store_true')
+  ap.add_argument('words', help='words to lookup', nargs='*')
+  args = ap.parse_args()
+  main('urban' if args.urban else 'globsbe', args.words)
 
