@@ -17,7 +17,7 @@ def main(provider, args):
   
   res = {}
   for word in args:
-    url = get_url(provider) % urllib.quote(word)
+    url = get_url(provider) % word
     result = json.load(urllib.urlopen(url)) 
     res[word] = extract_definitions(result, provider)
     
