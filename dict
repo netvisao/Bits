@@ -28,11 +28,11 @@ def prettyprint(map):
   parser = HTMLParser()  
   print
   for word in map:
-    print "%s:" % parser.unescape(word)
+    print "%s:" % urllib.unquote(word)
     cnt = 0
     for definition in map[word]:
       cnt += 1
-      print "  %d - %s" % (cnt, urllib.unquote(definition).replace('\n',' ').replace('\r',''))
+      print "  %d - %s" % (cnt, parser.unescape(definition).replace('\n',' ').replace('\r',''))
     print   
      
 def get_url(provider):
